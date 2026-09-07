@@ -50,11 +50,13 @@ noise from scanning 5 buckets post-hoc.
   variants tested (all worse than doing nothing), portfolio correlation check
   against the double calendars. See its findings.yaml for the closed/open
   question list.
-- **[SPX DC 1/2](strategies/spx-dc-1-2/README.md)**, **[SPX DC 11/23](strategies/spx-dc-11-23/README.md)**,
-  **[SPX DC 14/28](strategies/spx-dc-14-28/README.md)**, **[SPX DC 5/7](strategies/spx-dc-5-7/README.md)**
-  — double calendar variants. Only pulled so far for the RIC correlation check
-  (see portfolio/correlation-notes.md) — no dedicated Greeks/regime analysis
-  done yet on any of these individually.
+- **[SPX DC 1/2](strategies/spx-dc-1-2/README.md)**, **[SPX DC 5/7](strategies/spx-dc-5-7/README.md)**
+  — double calendar variants. Current focus, per Ryan (Sep 7, 2026). Only
+  pulled so far for the RIC correlation check (see portfolio/correlation-notes.md)
+  — no dedicated Greeks/regime analysis done yet on either individually.
+- **[SPX DC 14/28](strategies/spx-dc-14-28/README.md)** — double calendar
+  variant, not currently a focus (deprioritized alongside removal of the
+  9/23-DTE test below; may return to it later).
 
 ## Portfolio-level
 
@@ -64,12 +66,26 @@ noise from scanning 5 buckets post-hoc.
   really — correlation is ~0, and 2 of 4 calendars had zero trades open during
   that window).
 
+## Removed / deprioritized
+
+- **DC "9/23" / "11/23" test — removed Sep 7, 2026.** Ryan's working notes
+  called this calendar "9/23 DTE," but the actual saved OO test was labeled
+  "11/23" — a naming discrepancy that was never resolved (unclear if it's a
+  typo somewhere, or the DTE window changed at some point without the label
+  updating). Rather than carry ambiguous data forward, its README and CSV
+  were deleted from `strategies/`, and its numbers were removed from
+  portfolio/correlation-notes.md. If this strategy comes back into scope,
+  re-pull it fresh from OO and confirm its actual DTE window before
+  re-adding — don't resurrect this deleted data as-is.
+- QQQ 14/28 DTE calendar — disregarded for now (Ryan, Sep 7, 2026). Was
+  referenced in an old saved OO Portfolio name but never located as a
+  standalone saved test.
+- Four Butterfly variants — exist in the OO account, not yet reviewed.
+  Ryan flagged he'll ask for this separately.
+- "SPX--PCS--0DTE--Daily" test — exists in the OO account, unaccounted for,
+  status unclear.
+
 ## Known gaps (not yet done, flagged so nobody assumes they're done)
 
-- QQQ 14/28 DTE calendar — referenced in an old saved OO Portfolio name but
-  never located as a standalone saved test; not pulled or analyzed.
-- Four Butterfly variants and a "SPX--PCS--0DTE--Daily" test exist in the OO
-  account but aren't accounted for anywhere in this repo — unclear if they're
-  live/considered live.
-- No dedicated strategy README/findings yet for any of the four DC variants —
-  only the RIC has full writeups so far.
+- No dedicated strategy README/findings yet for DC 1/2 or DC 5/7 (current
+  focus) — only the RIC has full writeups so far.

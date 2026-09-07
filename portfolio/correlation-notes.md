@@ -3,6 +3,13 @@
 Pulled Sep 7, 2026. Full trade logs for four starred SPX double-calendar
 backtests vs. the RIC (see ../strategies/*/backtests/ for raw CSVs).
 
+**Note (Sep 7, 2026):** the DC "9/23"/"11/23" test's raw data was removed
+from `strategies/` after this analysis was written (naming discrepancy
+never resolved, deprioritized alongside QQQ 14/28 — see INDEX.md). Its
+numbers below are kept as a historical record of what the correlation
+looked like at the time, but the source CSV no longer exists in this repo
+if you want to re-derive it — re-pull from OO first.
+
 ## Full-history daily P/L correlation (May 2022 - Sep 2026)
 
 | Pair | Correlation (days RIC traded) |
