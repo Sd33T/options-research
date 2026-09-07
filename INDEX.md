@@ -57,6 +57,13 @@ noise from scanning 5 buckets post-hoc.
 - **[SPX DC 14/28](strategies/spx-dc-14-28/README.md)** — double calendar
   variant, not currently a focus (deprioritized alongside removal of the
   9/23-DTE test below; may return to it later).
+- **[SPX Butterfly 14DTE 50D/40W](strategies/spx-butterfly-14dte-50d-40w/README.md)**
+  — long call butterfly, 14 DTE, 50-delta center, +/-40 wings. Two variants
+  reviewed side by side (v2: profit-target-only, models a resting GTC order;
+  v2.2: profit-target + delta exit, models full OO bot automation) — see its
+  findings.yaml for the open question on which execution model applies.
+  First-pass review only (structure + headline outcomes); no Greeks/regime
+  or correlation work done yet.
 
 ## Portfolio-level
 
@@ -80,8 +87,9 @@ noise from scanning 5 buckets post-hoc.
 - QQQ 14/28 DTE calendar — disregarded for now (Ryan, Sep 7, 2026). Was
   referenced in an old saved OO Portfolio name but never located as a
   standalone saved test.
-- Four Butterfly variants — exist in the OO account, not yet reviewed.
-  Ryan flagged he'll ask for this separately.
+- Two of four Butterfly variants reviewed (14 DTE, 50D/40W — see above).
+  Two more Butterfly variants still exist in the OO account, not yet
+  reviewed.
 - "SPX--PCS--0DTE--Daily" test — exists in the OO account, unaccounted for,
   status unclear.
 

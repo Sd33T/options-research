@@ -1,0 +1,35 @@
+# SPX Butterfly -- 14 DTE, 50 Delta center, +/-40 wings
+# Two saved OO backtests reviewed together: v2 (PT-only, models a resting
+# GTC order) and v2.2 (PT + delta exit, models full OO bot automation).
+
+- date: 2026-09-07
+  finding: >
+    Baseline structure and performance for both variants, May 2022-Sep 2026.
+    v2 (PT 35% only): P/L $455,240, CAGR 48.8%, MDD -6.8%, Sharpe 4.74,
+    Sortino 9.32, win 93.3%, avg loser -$490/lot, 760 closed trades.
+    v2.2 (PT 35% + exit when delta <-7 or >8): P/L $508,260, CAGR 51.9%,
+    MDD -6.9%, Sharpe 4.61, Sortino 11.02, win 91.6%, avg loser -$297/lot,
+    759 closed trades. v2.2 beats v2 on every metric except Sharpe and max
+    loser (tied at -$775/lot -- delta exit doesn't cap the true tail, likely
+    a fast/gap move past the trigger before it can fire).
+  confidence: high
+  status: closed
+  note: >
+    Descriptive only -- not yet tested for statistical significance, and
+    not yet compared against the RIC or DC 1/2 and 5/7 for portfolio-level
+    correlation. Both are open items.
+
+- date: 2026-09-07
+  finding: >
+    v2 vs v2.2 is not simply "which is better" -- it's "resting GTC order
+    (mechanically limited to profit-target-only) vs full OO bot automation
+    (can also watch delta continuously)." v2's numbers are what's achievable
+    without running the automation live; v2.2 is the ceiling if the bot is
+    reliably running. Ryan's own authoring notes on both tests already flag
+    this as the open question to resolve empirically.
+  confidence: high
+  status: open
+  note: >
+    Open question is which execution model Ryan actually runs/intends to
+    run live for this strategy -- that determines which variant's numbers
+    are the realistic ones to size the strategy against.
