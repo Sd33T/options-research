@@ -21,15 +21,78 @@
 
 - date: 2026-09-07
   finding: >
-    v2 vs v2.2 is not simply "which is better" -- it's "resting GTC order
-    (mechanically limited to profit-target-only) vs full OO bot automation
-    (can also watch delta continuously)." v2's numbers are what's achievable
-    without running the automation live; v2.2 is the ceiling if the bot is
-    reliably running. Ryan's own authoring notes on both tests already flag
-    this as the open question to resolve empirically.
+    Resolved via exit-slippage sensitivity test: swept v2's Exit Slippage
+    (0.25 baseline / 0.05 / 0.00) with everything else unchanged. Results:
+    P/L $455,240 / $484,300 / $491,215 vs v2.2's $508,260. Even a literally
+    perfect fill only closes 68% of the v2-to-v2.2 gap ($35,975 of $53,020)
+    -- the remaining ~$17,045 and the gap in avg loser size (-$503 vs
+    -$297/lot at tight slippage) is not a fill-quality artifact. It's the
+    delta exit doing something a resting PT order structurally cannot: cut
+    a losing trade before expiration. Fill quality and loss-cutting are two
+    separate, additive sources of the gap, not one explaining the other.
+    Sharpe reverses at tight slippage -- every tightened v2 variant
+    (5.22-5.26) beats v2.2 (4.61); Sortino is close to a tie (10.77-10.91
+    vs 11.02).
+  confidence: high
+  status: closed
+  note: >
+    This quantifies the ceiling of what a resting-PT-only approach gives up
+    to full bot automation (~$17K / ~3% of total P/L over 4.3 years,
+    IF the manual delta-watching that replaces the bot is executed as
+    promptly and reliably as the backtested rule). See the monitoring-
+    cadence finding below for why that "if" is the real open risk, not the
+    exit rule itself.
+
+- date: 2026-09-07
+  finding: >
+    Checked whether OO automation (bot, broker = Schwab) could run a
+    resting PT order and an automated delta-exit simultaneously, removing
+    the need for manual monitoring entirely. Confirmed no, per OO's own
+    docs: "If a user chooses a resting PT, they cannot also have a resting
+    SL. This is a broker limitation" -- stated as general across all four
+    of OO's supported brokers (Tradier, Schwab/ToS, tastytrade,
+    TradeStation), not Schwab-specific. A delta exit is functionally
+    another closing order competing with the resting one, so it hits the
+    same wall. Only unverified alternative: OO bot rests the PT, Ryan
+    separately places a native ToS conditional/OCO order on underlying
+    price as an imperfect delta proxy. Two open problems with that: (1)
+    unclear if a bot-placed Schwab order is even visible/linkable in ToS's
+    own order book, (2) a fixed price trigger isn't stable against a delta
+    threshold since delta also moves with time and IV -- would need
+    recalculating per trade, which is itself manual work, not a
+    free automation win.
+  confidence: high
+  status: closed
+  note: >
+    This settles that Ryan's plan (resting PT + manual delta watch) isn't
+    one option among several -- given zero automation currently running,
+    it's the only way to get both the fill-quality benefit of a resting
+    order and delta-based loss protection right now.
+
+- date: 2026-09-07
+  finding: >
+    Verified OO's live "Model" tool against Ryan's actual open position
+    (butterfly opened 9/3/2026): confirms a resting closing order on the
+    books ("Resting CO at $5.55") and a live payoff/Greeks chart (P/L,
+    Delta, Gamma, Theta, Vega, Rho, Vanna, Charm) plotted against current
+    underlying price -- Delta readable in real time as Ryan described.
+    However, scanned the full page for any alert/notification tied to
+    Greek thresholds: none exists. It is a manual pull/check tool only --
+    no push notification fires when delta crosses a threshold.
   confidence: high
   status: open
   note: >
-    Open question is which execution model Ryan actually runs/intends to
-    run live for this strategy -- that determines which variant's numbers
-    are the realistic ones to size the strategy against.
+    This is the actual operative risk in Ryan's plan, more than the exit
+    rule itself: a backtested delta exit fires the instant the threshold is
+    crossed (checked every bar); a manual check only catches a breach as
+    fast as Ryan happens to look. Since he's running zero automation, this
+    is a fully manual pipeline end-to-end (entry, resting PT placement, AND
+    delta monitoring) -- not partially bot-assisted. If real-world checking
+    cadence is looser than "continuous," realized results could land closer
+    to v2's baseline (avg loser -$490/lot, no delta protection) than v2.2's
+    backtested numbers (-$297/lot), even with a perfect PT fill. Cheap
+    mitigation flagged, not yet verified: a plain ToS price-level alert
+    (notification only, not an order) as a backstop so delta-watching isn't
+    solely dependent on remembering to open OO's Model tab. Open item:
+    whether Ryan sets this up and what his actual checking cadence ends up
+    being in live trading.

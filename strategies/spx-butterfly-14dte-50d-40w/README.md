@@ -85,3 +85,77 @@ v2.2 is the ceiling if automation is fully reliable.
 - No significance testing performed (nothing here currently rests on a
   subgroup claim that would need it, per reference/significance_testing.py's
   usage criteria).
+
+## Live-execution question: v2 (resting PT + manual delta watch) vs. v2.2 (full bot automation)
+
+Ryan currently runs **zero OO automation** — this strategy would be entered,
+have its PT order placed, and be delta-monitored 100% manually. His proposed
+plan: place the resting GTC PT order (v2's execution model — better fills
+than a bot-driven market/limit close), watch position delta live via OO's
+"Model" tool, and manually close if delta breaches the v2.2 thresholds
+(< −7 or > 8).
+
+**Exit-slippage sensitivity test (isolates fill quality from the delta-exit
+rule):**
+
+| Exit Slippage | P/L | CAGR | MDD | Sharpe | Sortino | Win % | Avg Loser/lot | Max Winner/lot |
+|---|---|---|---|---|---|---|---|---|
+| 0.25 (v2 baseline) | $455,240 | 48.8% | -6.8% | 4.74 | 9.32 | 93.3% | -$490 | $840 |
+| 0.05 | $484,300 | 50.5% | -5.7% | 5.22 | 10.77 | 94.3% | -$503 | $325 |
+| 0.00 (theoretical perfect fill) | $491,215 | 50.9% | -5.7% | 5.26 | 10.91 | 94.5% | -$503 | $330 |
+| *(reference) v2.2, PT + delta exit* | *$508,260* | *51.9%* | *-6.9%* | *4.61* | *11.02* | *91.6%* | *-$297* | *$2,790* |
+
+**Read:** Even a literally perfect fill only closes 68% of the P/L gap to
+v2.2 ($35,975 of $53,020). The remaining ~$17K, and the persistent gap in
+avg loser size (-$503 vs -$297/lot even at 0 slippage), isn't a fill-quality
+artifact — it's the delta exit doing something a resting PT order
+structurally cannot do: cut a losing trade before expiration. Fill quality
+and loss-cutting are two separate, additive sources of the v2-to-v2.2 gap,
+not one explaining the other.
+
+It's not a clean win for v2.2, though. On Sharpe, every tightened-slippage
+v2 variant (5.22-5.26) beats v2.2 (4.61) — same pattern as the RIC's active-
+exit tests, where early cuts reduce return more than they reduce volatility
+on a Sharpe basis. Sortino (which only penalizes downside) is close to a
+wash: 10.77-10.91 vs 11.02.
+
+**Second-order-automation question, resolved:** checked whether OO's bot
+(Schwab, or any of its 4 supported brokers — Tradier, Schwab/ToS,
+tastytrade, TradeStation) could run the resting PT and an automated delta
+exit at the same time, which would remove the manual-monitoring dependency
+entirely. No — per OO's own docs: *"If a user chooses a resting PT, they
+cannot also have a resting SL. This is a broker limitation."* This is
+general across brokers, not Schwab-specific, and a delta exit is
+functionally another closing order competing with the resting one, so it
+hits the same wall. The only unverified alternative is entirely outside OO:
+let the bot rest the PT, and separately place a native ThinkorSwim
+conditional/OCO order on underlying price as an imperfect delta proxy. Two
+real problems with that, neither checked yet: (1) unclear whether an order
+OO's bot places via the Schwab API is even visible or linkable into a
+manually-built ToS OCO — worth asking Schwab support directly before
+relying on it; (2) a fixed price trigger isn't a stable stand-in for a delta
+threshold, since delta also moves with time decay and IV, so the "right"
+trigger price would need recalculating per trade rather than being set once
+— itself manual work, not a free automation win.
+
+**Net: given zero automation running today, Ryan's plan isn't one option
+among several — it's the only way to get both the fill-quality benefit of a
+resting order and delta-based loss protection right now.**
+
+**The real operative risk is monitoring cadence, not the exit rule.**
+Verified OO's "Model" tool directly against Ryan's actual open 9/3/2026
+butterfly position: it does show a resting closing order on the books and a
+live Delta (and full Greeks) curve exactly as described. But a full scan of
+that page found no alert or notification tied to Greek thresholds — it's a
+manual pull/check tool only. A backtested delta exit fires the instant the
+threshold is crossed; a manual check only catches a breach as fast as Ryan
+happens to look. Since this is a fully manual pipeline end-to-end (entry,
+PT placement, AND delta monitoring — not partially bot-assisted), the
+realistic risk isn't "will the exit rule work," it's "will the breach be
+seen promptly." A loose checking cadence could give back more than the ~$17K/
+avg-loser gap quantified above, especially since attention tends to lapse
+exactly when markets are moving fast — which is when delta is most likely to
+spike past the threshold. Cheap mitigation, flagged but not yet verified: a
+plain ThinkorSwim price-level alert (notification only, not an order) as a
+backstop so delta-watching doesn't depend solely on remembering to open
+OO's Model tab.
