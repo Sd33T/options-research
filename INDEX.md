@@ -9,6 +9,39 @@ definitions and unit conventions. Read before writing any analysis script
 against an OO export; a units mistake here already cost a wasted round-trip
 once (Sep 7, 2026).
 
+Reference: `reference/significance_testing.py` — reusable stats toolkit
+(Fisher's exact, permutation test, Welch t-test, Mann-Whitney U, omnibus
+chi-square, Bonferroni correction, power analysis). Use it any time a new
+strategy idea rests on "this subgroup of trades looks better/worse than the
+rest" — that exact pattern produced a false alarm on the RIC's VIX 20-25
+bucket (see its findings.yaml) before this test suite caught that it was
+noise from scanning 5 buckets post-hoc.
+
+## How to use this repo when evaluating a new strategy idea
+
+1. Check `findings.yaml` in the relevant strategy folder(s) first — don't
+   re-derive something already tested. Only trust entries tagged
+   `confidence: high` and `status: closed` as settled; `open` or `low`
+   confidence entries are explicitly unresolved, not confirmed either way.
+   A `confidence: retracted` entry means exactly what it says — read why
+   before assuming the superseding entry alone tells the whole story.
+2. If the new idea implies a subgroup comparison (a VIX regime, a time-of-day
+   window, a DTE bucket, etc.), run it through
+   `reference/significance_testing.py` before writing up a causal story.
+   Small-n backtest subsets produce convincing-looking noise constantly —
+   see the VIX 20-25 episode for what that looks like before it's corrected.
+3. If the new idea is pitched as a portfolio diversifier against an existing
+   strategy, check `portfolio/correlation-notes.md`'s methodology (actual
+   daily P/L correlation, not just "these are structurally opposite") before
+   claiming a hedge relationship exists.
+4. Cross-strategy priors worth weighing against, not treating as settled
+   law: every active-exit variant tested on the RIC (profit target, stop
+   loss, time exit) reduced risk-adjusted returns vs. holding to expiration
+   — profit targets specifically cut the convex tail that a long-gamma
+   structure depends on. If a new idea leans on an early-exit rule for a
+   similar long-gamma/long-vol structure, that prior is worth explicitly
+   re-testing against, not assuming will hold or won't.
+
 ## Strategies
 
 - **[SPX RIC 0DTE](strategies/spx-ric-0dte/README.md)** — reverse iron condor,
