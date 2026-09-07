@@ -1,0 +1,91 @@
+# SPX RIC 0DTE — findings log
+# confidence: high | medium | low | retracted
+# status: closed (settled, no further action) | open (needs follow-up) | monitoring
+
+- date: 2026-09-07
+  claim: >
+    Baseline v2.1 structure and performance as documented in README.md
+    (P/L $165,593, Sharpe 2.10, 235 trades, 100% exits are "Expired").
+  confidence: high
+  evidence: "Direct read of OO Summary/Analyze/Trade Log tabs; backtests/2026-09-07_v2.1_baseline.csv"
+  status: closed
+
+- date: 2026-09-07
+  claim: >
+    RETRACTED. Originally claimed the VIX 20-25 entry bucket underperforms
+    (54.3% win vs ~65% elsewhere) because debit paid scales up with IV faster
+    than realized move compensates ("$709 -> $1,587/lot across VIX buckets").
+  confidence: retracted
+  evidence: >
+    The $709-$1,587 figures divided the CSV's Premium column by No. of
+    Contracts a second time (Premium is already per-contract). Corrected
+    figures are 13.3-15.9 points/lot across ALL buckets -- a 2-7 percentage-
+    point effect on debit-to-width ratio, not the dramatic gap first reported.
+  status: retracted
+  superseded_by: "2026-09-07 entry below (statistical significance check)"
+
+- date: 2026-09-07
+  claim: >
+    The VIX 20-25 bucket's apparent underperformance (win rate, avg P/L) is
+    statistical noise, not a real regime effect. No fix needed or possible
+    (a VIX-scaled max-premium cap, or a flat tighter cap, would not address a
+    real effect because there isn't one -- and would just shrink the whole
+    strategy since debit is similar across all VIX buckets already).
+  confidence: high
+  evidence: >
+    n=35. Fisher's exact test on win rate: p=0.24 vs 15-20 bucket, p=0.19 vs
+    all-other. Omnibus chi-square across all 5 VIX buckets: p=0.34 (no
+    detectable relationship). Power to detect the observed win-rate gap at
+    n=35 was only 22%. Avg P/L: Welch t-test/Mann-Whitney nominally p=0.015-
+    0.029, but permutation test (better suited to skewed P/L data) gives
+    p=0.07-0.09. Bonferroni-corrected for the 5-bucket post-hoc scan, every
+    p-value lands at 0.36-1.0. Nothing survives correction.
+  status: closed
+
+- date: 2026-09-07
+  claim: >
+    Active exit management (profit target, stop loss, or early time-exit)
+    makes this strategy WORSE on every metric tested, not better. The edge
+    depends on holding to expiration to capture the convex tail.
+  confidence: high
+  evidence: >
+    Three "Unsaved Backtest" clones run live in OO's engine (never saved,
+    raw trade logs not retained -- only summary metrics captured):
+    - Profit target 50% of debit: P/L $50,053 (vs $165,593 baseline), Sharpe
+      1.23 (vs 2.10), Max Winner capped at $905/lot (vs $2,235) -- by far the
+      most damaging, truncates the exact tail that carries the strategy.
+    - Stop loss -50% of debit: P/L $123,300, Sharpe 1.85, Sortino 4.15 (vs
+      4.01 baseline -- slightly better), Max Loser -$1,185/lot (vs -$1,605).
+      Reduces tail risk and drawdown but still costs ~25% of total P/L; win
+      rate drop (56.2% vs 64.3%) shows real trades that would've recovered by
+      4pm got stopped early.
+    - Time exit at 3:30pm (30min early): P/L $126,950, Sharpe 2.00 (~flat vs
+      baseline), Sortino 4.16 (slightly better), Max Loser -$1,365/lot. Best
+      balance of the three if managing for smoother drawdowns specifically,
+      but still gives up ~23% of total P/L.
+  status: closed
+
+- date: 2026-09-07
+  claim: >
+    RIC correlation with the SPX double-calendar book (DC 1/2, DC 11/23,
+    DC 14/28, DC 5/7) is close to zero across the board (range -0.03 to 0.10
+    on days RIC traded) -- genuine diversification, not a designed hedge.
+    During the Jul-Aug 2026 drawdown, DC 11/23 and DC 14/28 had ZERO trades
+    open in the entire window (last entries Apr 30 / May 11, 2026); DC 1/2
+    and DC 5/7 did overlap on 2 days and offset well when they did (2026-07-30,
+    2026-07-15), but the RIC's 4 worst days in the window had no calendar
+    trade open at all.
+  confidence: high
+  evidence: "See ../../portfolio/correlation-notes.md for full detail and daily P/L table."
+  status: closed
+
+- date: 2026-09-07
+  claim: >
+    OPEN QUESTION -- not yet investigated. Naming discrepancy: this repo's
+    working notes (pre-Sep-2026) referred to a "9/23 DTE" calendar as part of
+    the live book; the actual starred/saved OO test is named "SPX DC--11/23--
+    Daily--v2.1.1". Unclear if this is a naming drift, a strategy that was
+    renamed/re-parameterized, or two different things.
+  confidence: low
+  evidence: "Observed directly in OO's saved-tests dashboard, Sep 7 2026."
+  status: open
