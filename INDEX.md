@@ -64,6 +64,13 @@ noise from scanning 5 buckets post-hoc.
   findings.yaml for the open question on which execution model applies.
   First-pass review only (structure + headline outcomes); no Greeks/regime
   or correlation work done yet.
+- **[SPX PCS 0DTE](strategies/spx-pcs-0dte/README.md)** — put credit spread,
+  0DTE, bullish-continuation entry filter. Reviewed Sep 8, 2026 as part of
+  auditing the "Claude portfolio test" OO portfolio. Recommendation: leave
+  out of the live portfolio — weakest risk-adjusted profile of the five
+  strategies reviewed (Sharpe 1.34), and positively correlated with the RIC
+  (+0.355 on overlap days, the strongest relationship in the whole
+  correlation matrix and in the wrong direction for diversification).
 
 ## Portfolio-level
 
@@ -71,7 +78,14 @@ noise from scanning 5 buckets post-hoc.
   vs. double-calendar daily P/L correlation, and a specific look at whether the
   calendar book cushions the RIC's Jul-Aug 2026 drawdown (short answer: not
   really — correlation is ~0, and 2 of 4 calendars had zero trades open during
-  that window).
+  that window). Updated Sep 8, 2026 with a full five-strategy pairwise
+  correlation matrix (Butterfly, DC 1/2, DC 5/7, RIC, PCS) covering the
+  "Claude portfolio test" OO portfolio — see that file for the current read:
+  DC 5/7 is the closest thing to a real complement to the Butterfly (-0.193
+  on overlap days), PCS and RIC are positively correlated (the one pairing
+  to actively avoid), and DC 1/2's diversification case is still unproven
+  (near-zero or weakly positive against everything, and rarely even open
+  when the others draw down).
 
 ## Removed / deprioritized
 
@@ -90,8 +104,6 @@ noise from scanning 5 buckets post-hoc.
 - Two of four Butterfly variants reviewed (14 DTE, 50D/40W — see above).
   Two more Butterfly variants still exist in the OO account, not yet
   reviewed.
-- "SPX--PCS--0DTE--Daily" test — exists in the OO account, unaccounted for,
-  status unclear.
 
 ## Known gaps (not yet done, flagged so nobody assumes they're done)
 
